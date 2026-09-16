@@ -1,60 +1,83 @@
-const WORDS = [
-"able","about","above","acid","across","act","active","add","after","again","age","ago","air","all","also","and","any","apple","area","arm","art","as","ask","at","away",
-"back","bad","bag","ball","bank","base","be","bear","beat","beauty","bed","bee","been","before","best","better","big","bird","bit","black","blue","boat","body","book","box","boy","break","bring","brother","build","bus","buy",
-"call","came","can","car","care","carry","case","cat","cause","cell","change","check","child","city","class","clean","clear","close","cold","come","common","company","could","country","course","cover","create","cut",
-"dark","day","deal","deep","did","different","do","dog","door","down","draw","dream","drive","dry","during",
-"each","early","earth","east","easy","eat","edge","eight","else","end","enough","even","ever","every","example","eye",
-"face","fact","fall","family","far","fast","father","feel","few","field","find","fine","fire","first","fish","five","food","for","form","found","four","free","friend","from","full","fun",
-"game","gave","get","girl","give","go","good","great","green","group","grow",
-"had","half","hand","happen","happy","hard","has","have","he","head","hear","help","her","here","high","him","his","home","hope","hot","house","how",
-"I","idea","if","important","in","include","into","is","it","its",
-"job","just","keep","kind","know",
-"land","large","last","late","later","laugh","learn","leave","left","less","let","letter","life","light","like","line","little","live","long","look","love","low",
-"made","make","man","many","may","me","mean","meet","men","might","mile","mind","minute","miss","money","more","most","mother","move","much","must","my",
-"name","near","need","never","new","next","night","no","not","now","number",
-"of","off","often","old","on","once","one","only","open","or","order","other","our","out","over","own",
-"part","people","place","play","point","put",
-"question","quick","quite",
-"read","real","red","remember","right","road","room","run",
-"said","same","saw","say","school","second","see","seem","set","seven","she","should","show","side","simple","since","six","small","so","some","something","sometimes","song","soon","sound","south","start","state","still","stop","story","street","such","sure",
-"take","talk","tell","ten","than","that","the","their","them","then","there","these","they","thing","think","this","those","three","through","time","to","today","together","too","town","try","two",
-"under","until","up","us","use",
-"very",
-"walk","want","was","water","way","we","well","went","were","what","when","where","which","while","who","why","will","with","without","woman","word","work","world","would","write",
-"year","yes","you","young","your"
+const lettersInput = document.getElementById("letters");
+const resultsDiv = document.getElementById("results");
+const findButton = document.getElementById("findWords");
+
+const dictionary = [
+  "A","AN","AND","ANT","BAD","BAG","BAN","BAND","BANDANA","BAR","BAT",
+  "BE","BED","BEAT","BEAN","BEAR","BEARD","BEAT","BEND","BEST",
+  "CAN","CANE","CAR","CARD","CARE","CASE","CAT","CATS",
+  "DAD","DAME","DANCE","DATE","DEAL","DEAR","DECK",
+  "EAR","EAT","EATEN","ECHO","END","ERA",
+  "FAN","FAR","FAST","FATE","FEAR","FED","FIND","FINE",
+  "GAIN","GAME","GATE","GEAR","GET","GIVE","GOOD",
+  "HAND","HAT","HAVE","HEAR","HEART","HEAT","HEN",
+  "IN","IS","IT",
+  "MAN","MANNER","MAP","MAT","ME","MEAN","MEAT","MEN",
+  "NAME","NEAR","NEAT","NET","NEW","NICE","NIGHT",
+  "OF","ON","ONE","OR","OTHER","OUT",
+  "PAN","PART","PAST","PAT","PEN","PET","PLAN","PLAY",
+  "RAN","RATE","READ","REAL","RED","REST","RING","ROAD",
+  "SAD","SAFE","SAND","SAT","SEA","SEAT","SEND","SET",
+  "TAN","TAPE","TEAM","TEAR","TEN","THE","THAT","THEN",
+  "TO","TOE","TOO","TOP","TREE","TRY",
+  "USE",
+  "WAS","WAY","WE","WEAR","WHAT","WHEN","WHERE","WHO",
+  "WIN","WIND","WORD","WORK"
 ];
 
-const lettersEl=document.getElementById("letters");
-const minEl=document.getElementById("minLen");
-const maxEl=document.getElementById("maxLen");
-const resultsEl=document.getElementById("results");
-const statusEl=document.getElementById("status");
+function canMakeWord(word, letters) {
+  const available = {};
 
-function canMake(word, tiles){
-  const counts={}; let blanks=0;
-  for(const c of tiles){ if(c==="?") blanks++; else counts[c]=(counts[c]||0)+1; }
-  const need={};
-  for(const c of word){ need[c]=(need[c]||0)+1; }
-  let missing=0;
-  for(const c in need) missing += Math.max(0, need[c]-(counts[c]||0));
-  return missing<=blanks && word.length<=tiles.length;
-}
-function findWords(){
-  const tiles=lettersEl.value.toLowerCase().replace(/[^a-z?]/g,"");
-  const min=+minEl.value,max=+maxEl.value;
-  resultsEl.innerHTML="";
-  if(!tiles){statusEl.textContent="Enter some letters to begin.";return;}
-  const matches=WORDS.filter(w=>w.length>=min&&w.length<=max&&w.length<=tiles.length&&canMake(w,tiles))
-    .sort((a,b)=>b.length-a.length||a.localeCompare(b));
-  statusEl.textContent=`Found ${matches.length} word${matches.length===1?"":"s"} from your letters.`;
-  if(!matches.length){resultsEl.innerHTML='<div class="group"><strong>No matches found.</strong><p>Try different letters, a blank tile (?) or a shorter minimum length.</p></div>';return;}
-  for(let len=max;len>=min;len--){
-    const group=matches.filter(w=>w.length===len);
-    if(!group.length) continue;
-    const div=document.createElement("div");div.className="group";
-    div.innerHTML=`<h2>${len}-letter words</h2><div class="words">${group.map(w=>`<span class="word">${w}</span>`).join("")}</div>`;
-    resultsEl.appendChild(div);
+  for (const letter of letters) {
+    available[letter] = (available[letter] || 0) + 1;
   }
+
+  for (const letter of word) {
+    if (!available[letter]) {
+      return false;
+    }
+    available[letter]--;
+  }
+
+  return true;
 }
-document.getElementById("findBtn").addEventListener("click",findWords);
-lettersEl.addEventListener("keydown",e=>{if(e.key==="Enter")findWords()});
+
+function findWords() {
+  const letters = lettersInput.value
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+
+  if (!letters) {
+    resultsDiv.innerHTML = "<p>Please enter some letters.</p>";
+    return;
+  }
+
+  const words = dictionary
+    .filter(word => canMakeWord(word, letters))
+    .sort((a, b) => {
+      if (b.length !== a.length) {
+        return b.length - a.length;
+      }
+      return a.localeCompare(b);
+    });
+
+  if (words.length === 0) {
+    resultsDiv.innerHTML = "<p>No words found.</p>";
+    return;
+  }
+
+  resultsDiv.innerHTML = `
+    <h2>${words.length} words found</h2>
+    <div class="word-list">
+      ${words.map(word => `<span>${word}</span>`).join("")}
+    </div>
+  `;
+}
+
+findButton.addEventListener("click", findWords);
+
+lettersInput.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    findWords();
+  }
+});
