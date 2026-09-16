@@ -69,7 +69,7 @@ function findWords() {
   resultsDiv.innerHTML = `
     <h2>${words.length} words found</h2>
     <div class="word-list">
-      ${words.map(word => `<span>${word}</span>`).join('<br>')}
+      ${words.map(word => `<span>${word}</span>`).join(' ')}
     </div>
   `;
 }
