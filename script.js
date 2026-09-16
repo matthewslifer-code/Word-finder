@@ -1,6 +1,6 @@
 const lettersInput = document.getElementById("letters");
 const resultsDiv = document.getElementById("results");
-const findButton = document.getElementById("findWords");
+const findButton = document.getElementById("findBtn");
 
 const dictionary = [
   "A","AN","AND","ANT","BAD","BAG","BAN","BAND","BANDANA","BAR","BAT",
