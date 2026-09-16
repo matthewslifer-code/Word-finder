@@ -1,4 +1,4 @@
-const lettersInput = document.getElementById("letters");
+looconst lettersInput = document.getElementById("letters");
 const resultsDiv = document.getElementById("results");
 const findButton = document.getElementById("findBtn");
 
@@ -69,7 +69,7 @@ function findWords() {
   resultsDiv.innerHTML = `
     <h2>${words.length} words found</h2>
     <div class="word-list">
-      ${words.map(word => `<span>${word}</span>`).join("")}
+      ${words.map(word => `<span>${word}</span>`).join('<br>')}
     </div>
   `;
 }
