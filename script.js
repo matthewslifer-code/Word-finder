@@ -1,4 +1,4 @@
-looconst lettersInput = document.getElementById("letters");
+const lettersInput = document.getElementById("letters");
 const resultsDiv = document.getElementById("results");
 const findButton = document.getElementById("findBtn");
 
