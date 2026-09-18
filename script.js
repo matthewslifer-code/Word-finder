@@ -1,83 +1,111 @@
-const lettersInput = document.getElementById("letters");
-const resultsDiv = document.getElementById("results");
-const findButton = document.getElementById("findBtn");
+// WordFinder - fresh, self-contained search logic
 
-const dictionary = [
-  "A","AN","AND","ANT","BAD","BAG","BAN","BAND","BANDANA","BAR","BAT",
-  "BE","BED","BEAT","BEAN","BEAR","BEARD","BEAT","BEND","BEST",
-  "CAN","CANE","CAR","CARD","CARE","CASE","CAT","CATS",
-  "DAD","DAME","DANCE","DATE","DEAL","DEAR","DECK",
-  "EAR","EAT","EATEN","ECHO","END","ERA",
-  "FAN","FAR","FAST","FATE","FEAR","FED","FIND","FINE",
-  "GAIN","GAME","GATE","GEAR","GET","GIVE","GOOD",
-  "HAND","HAT","HAVE","HEAR","HEART","HEAT","HEN",
-  "IN","IS","IT",
-  "MAN","MANNER","MAP","MAT","ME","MEAN","MEAT","MEN",
-  "NAME","NEAR","NEAT","NET","NEW","NICE","NIGHT",
-  "OF","ON","ONE","OR","OTHER","OUT",
-  "PAN","PART","PAST","PAT","PEN","PET","PLAN","PLAY",
-  "RAN","RATE","READ","REAL","RED","REST","RING","ROAD",
-  "SAD","SAFE","SAND","SAT","SEA","SEAT","SEND","SET",
-  "TAN","TAPE","TEAM","TEAR","TEN","THE","THAT","THEN",
-  "TO","TOE","TOO","TOP","TREE","TRY",
-  "USE",
-  "WAS","WAY","WE","WEAR","WHAT","WHEN","WHERE","WHO",
-  "WIN","WIND","WORD","WORK"
-];
+document.addEventListener("DOMContentLoaded", function () {
+  const lettersInput = document.getElementById("letters");
+  const resultsDiv = document.getElementById("results");
+  const statusDiv = document.getElementById("status");
+  const findButton = document.getElementById("findBtn");
+  const minLength = document.getElementById("minLength");
+  const maxLength = document.getElementById("maxLength");
 
-function canMakeWord(word, letters) {
-  const available = {};
+  function canMakeWord(word, letters) {
+    const available = {};
 
-  for (const letter of letters) {
-    available[letter] = (available[letter] || 0) + 1;
-  }
-
-  for (const letter of word) {
-    if (!available[letter]) {
-      return false;
+    for (const letter of letters) {
+      available[letter] = (available[letter] || 0) + 1;
     }
-    available[letter]--;
-  }
 
-  return true;
-}
-
-function findWords() {
-  const letters = lettersInput.value
-    .toUpperCase()
-    .replace(/[^A-Z]/g, "");
-
-  if (!letters) {
-    resultsDiv.innerHTML = "<p>Please enter some letters.</p>";
-    return;
-  }
-
-  const words = dictionary
-    .filter(word => canMakeWord(word, letters))
-    .sort((a, b) => {
-      if (b.length !== a.length) {
-        return b.length - a.length;
+    for (const letter of word) {
+      if (!available[letter]) {
+        return false;
       }
-      return a.localeCompare(b);
-    });
+      available[letter]--;
+    }
 
-  if (words.length === 0) {
-    resultsDiv.innerHTML = "<p>No words found.</p>";
-    return;
+    return true;
   }
 
-  resultsDiv.innerHTML = `
-    <h2>${words.length} words found</h2>
-    <div class="word-list">
-      ${words.map(word => `<span>${word}</span>`).join(' ')}
-    </div>
-  `;
-}
+  function findWords() {
+    const letters = lettersInput.value
+      .toUpperCase()
+      .replace(/[^A-Z?]/g, "");
 
-findButton.addEventListener("click", findWords);
+    lettersInput.value = letters;
 
-lettersInput.addEventListener("keydown", function(event) {
-  if (event.key === "Enter") {
-    findWords();
+    if (!letters) {
+      statusDiv.textContent = "";
+      resultsDiv.innerHTML = "<p>Please enter some letters.</p>";
+      return;
+    }
+
+    const min = Number(minLength.value);
+    const max = Number(maxLength.value);
+
+    if (min > max) {
+      resultsDiv.innerHTML = "<p>Please choose a smaller minimum length.</p>";
+      return;
+    }
+
+    const letterCounts = {};
+    let blanks = 0;
+
+    for (const letter of letters.toLowerCase()) {
+      if (letter === "?") {
+        blanks++;
+      } else {
+        letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+      }
+    }
+
+    const matches = WORDS
+      .filter(word => word.length >= min && word.length <= max)
+      .filter(word => {
+        const needed = {};
+
+        for (const letter of word) {
+          needed[letter] = (needed[letter] || 0) + 1;
+        }
+
+        let missing = 0;
+
+        for (const letter in needed) {
+          const have = letterCounts[letter] || 0;
+          if (needed[letter] > have) {
+            missing += needed[letter] - have;
+          }
+        }
+
+        return missing <= blanks;
+      })
+      .sort((a, b) => {
+        if (b.length !== a.length) {
+          return b.length - a.length;
+        }
+        return a.localeCompare(b);
+      });
+
+    statusDiv.textContent = matches.length
+      ? `${matches.length} words found`
+      : "";
+
+    if (!matches.length) {
+      resultsDiv.innerHTML = "<p>No words found. Try different letters or a ? blank.</p>";
+      return;
+    }
+
+    resultsDiv.innerHTML = `
+      <h2>Words you can make</h2>
+      <div class="word-list">
+        ${matches.map(word => `<span class="word">${word.toUpperCase()}</span>`).join("")}
+      </div>
+    `;
   }
+
+  findButton.addEventListener("click", findWords);
+
+  lettersInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      findWords();
+    }
+  });
 });
