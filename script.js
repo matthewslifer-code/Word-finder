@@ -7,7 +7,22 @@ document.addEventListener("DOMContentLoaded", function () {
   const findButton = document.getElementById("findBtn");
   const minLength = document.getElementById("minLength");
   const maxLength = document.getElementById("maxLength");
+function updateMaxLength() {
+  const letterCount = lettersInput.value
+    .replace(/[^A-Za-z]/g, "")
+    .length;
 
+  Array.from(maxLength.options).forEach(option => {
+    option.disabled = Number(option.value) > letterCount;
+  });
+
+  if (letterCount > 0 && Number(maxLength.value) > letterCount) {
+    maxLength.value = letterCount;
+  }
+}
+
+lettersInput.addEventListener("input", updateMaxLength);
+updateMaxLength();
   function canMakeWord(word, letters) {
     const available = {};
 
